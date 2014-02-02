@@ -9,8 +9,16 @@ use TinyORM\Database;
 
 class FetcherTest extends PHPUnit_Framework_TestCase {
 
-    protected function setUp() {
-        
+    public static function setUpBeforeClass() {
+        Database::query("CREATE TABLE IF NOT EXISTS `TinyORMTest` (
+                `username` varchar(50) NOT NULL,
+                `value` varchar(255) NOT NULL,
+                PRIMARY KEY (`username`)
+              ) ENGINE=InnoDB DEFAULT CHARSET=latin5;")->execute();
+    }
+
+    public static function tearDownAfterClass() {
+        Database::query("DROP TABLE IF EXISTS `TinyORMTest`")->execute();
     }
 
     public function testFetch() {
@@ -34,8 +42,11 @@ class FetcherTest extends PHPUnit_Framework_TestCase {
    
 
     public function testPrepared() {
-        $username='wondrous';
-        $query = Database::query("select * from users where username=?")->execute(array($username))->fetchOne();
+        
+        $username='testusername';
+        Database::query("replace into TinyORMTest (username, value) values ('".$username."','testvalue') ")->execute();
+        
+        $query = Database::query("select * from TinyORMTest where username=?")->execute(array($username))->fetchOne();
         $this->assertEquals($username, $query['username']);
     }
 
