@@ -14,12 +14,19 @@ use Memcache;
 class Cache {
 
     private static $instance;
+    private static $config;
+
+    public static function setConfig($config) {
+        self::$config = $config;
+    }
 
     private static function inst() {
         if (!self::$instance) {
             self::$instance = new Memcache;
-            $config=include 'Config.php';
-            foreach ($config['memcache'] as $s) {
+            if (!self::$config) {
+                self::$config = include 'Config.php';
+            }
+            foreach (self::$config['memcache'] as $s) {
                 self::$instance->addServer($s['host'], ($s['port'] ? $s['port'] : '11211'));
             }
         }

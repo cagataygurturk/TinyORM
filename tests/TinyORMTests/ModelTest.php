@@ -13,6 +13,7 @@ class UserMockObject extends Model {
 class ModelTest extends PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass() {
+        
         Database::query("CREATE TABLE IF NOT EXISTS `TinyORMTest` (
                 `username` varchar(50) NOT NULL,
                 `value` varchar(255) NOT NULL,
@@ -68,4 +69,5 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     }
 
 }
+
 ?>

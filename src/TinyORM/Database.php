@@ -8,7 +8,8 @@ use PDO;
 class Database {
 
     private static $objInstance;
-
+    private static $config;
+    
     private function __construct() {
         
     }
@@ -17,12 +18,18 @@ class Database {
         
     }
 
+    public static function setConfig($config) {
+        self::$config = $config;
+    }
+
     private static function getInstance() {
         global $_SERVER;
         if (!self::$objInstance) {
             try {
-                $config = include 'Config.php';
-                self::$objInstance = new PDO('mysql:host=' . $config['dbhost'] . ';dbname=' . $config['database'], $config['dbuser'], $config['dbpass'], array(
+                if (!self::$config) {
+                    self::$config = include 'Config.php';
+                }
+                self::$objInstance = new PDO('mysql:host=' . self::$config['dbhost'] . ';dbname=' . self::$config['database'], self::$config['dbuser'], self::$config['dbpass'], array(
                     PDO::ATTR_PERSISTENT => true,
                     PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
                     PDO::MYSQL_ATTR_DIRECT_QUERY => true)
