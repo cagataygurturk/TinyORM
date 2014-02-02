@@ -6,7 +6,6 @@
  * @author cagatay
  */
 
-
 namespace TinyORM;
 
 class Query {
@@ -19,9 +18,11 @@ class Query {
         $this->sql = $sql;
     }
 
-    public function execute() {
+    public function execute($params = null) {
         try {
-            return new fetcher($this->connection->query($this->sql));
+            $query = $this->connection->prepare($this->sql);
+            $query->execute($params);
+            return new Fetcher($query);
         } catch (Exception $e) {
             echo $e->getMessage();
         }
@@ -31,7 +32,7 @@ class Query {
         $cachekey = 'TinyORM-' . md5($this->sql);
         $cached = cache::get($cachekey);
         if ($cached === false) {
-            $fetcher = new fetcher($this->connection->query($this->sql));
+            $fetcher = new Fetcher($this->connection->query($this->sql));
             $cached = $fetcher->fetchAll();
             cache::set($cachekey, $cached, $timeout);
         }

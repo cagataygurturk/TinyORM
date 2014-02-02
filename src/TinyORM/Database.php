@@ -10,8 +10,6 @@ use PDO;
 class Database {
 
     private static $objInstance;
-    private $sql;
-    private $connection;
 
     private function __construct() {
         
@@ -55,17 +53,6 @@ class Database {
 
     public static function get_insert_id() {
         return self::getInstance()->lastInsertId();
-    }
-
-    public function useResultCache($timeout = 30) {
-        $cachekey = '_qc_' . md5($this->sql);
-        $cached = Cache::get($cachekey);
-        if ($cached === false) {
-            $fetcher = new Fetcher($this->connection->query($this->sql));
-            $cached = $fetcher->fetchAll();
-            cache::set($cachekey, $cached, $timeout);
-        }
-        return $cached;
     }
 
 }
