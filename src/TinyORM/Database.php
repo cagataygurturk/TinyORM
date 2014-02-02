@@ -3,8 +3,6 @@
 namespace TinyORM;
 
 use TinyORM\Query;
-use TinyORM\Config;
-use TinyORM\Fetcher;
 use PDO;
 
 class Database {
