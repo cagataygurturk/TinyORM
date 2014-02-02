@@ -31,10 +31,12 @@ class FetcherTest extends PHPUnit_Framework_TestCase {
         }
     }
 
-    public function testFetchOne() {
-        $query = Database::query("show variables")->execute()->fetchOne();
-        
-        $this->assertEquals(1, count($query));
+   
+
+    public function testPrepared() {
+        $username='wondrous';
+        $query = Database::query("select * from users where username=?")->execute(array($username))->fetchOne();
+        $this->assertEquals($username, $query['username']);
     }
 
 }

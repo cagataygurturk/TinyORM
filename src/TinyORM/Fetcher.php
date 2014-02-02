@@ -35,8 +35,7 @@ class Fetcher {
 
     public function fetchOne() {
         $results = $this->query->fetchAll();
-      
-        return array($results[0]);
+        return $results[0];
     }
 
     public function fetchScalar() {
