@@ -6,6 +6,10 @@
         "phpunit/phpunit-selenium": ">=1.2",
         "phpunit/dbunit": ">=1.2"
     },
+    "keywords": [
+        "orm",
+        "dbal"
+    ],
     "license": "BSD",
     "authors": [
         {
