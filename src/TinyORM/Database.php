@@ -9,7 +9,7 @@ class Database {
 
     private static $objInstance;
     private static $config;
-    
+
     private function __construct() {
         
     }
@@ -27,7 +27,10 @@ class Database {
         if (!self::$objInstance) {
             try {
                 if (!self::$config) {
-                    self::$config = include 'Config.php';
+                    self::$config = @include 'Config.php';
+                }
+                if (!self::$config) {
+                    throw new Exception("TinyORM configuration not set");
                 }
                 self::$objInstance = new PDO('mysql:host=' . self::$config['dbhost'] . ';dbname=' . self::$config['database'], self::$config['dbuser'], self::$config['dbpass'], array(
                     PDO::ATTR_PERSISTENT => true,

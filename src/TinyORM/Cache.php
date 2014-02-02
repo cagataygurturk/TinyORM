@@ -24,7 +24,10 @@ class Cache {
         if (!self::$instance) {
             self::$instance = new Memcache;
             if (!self::$config) {
-                self::$config = include 'Config.php';
+                self::$config = @include 'Config.php';
+            }
+            if(!self::$config) {
+                throw new Exception("TinyORM configuration not set");
             }
             foreach (self::$config['memcache'] as $s) {
                 self::$instance->addServer($s['host'], ($s['port'] ? $s['port'] : '11211'));
