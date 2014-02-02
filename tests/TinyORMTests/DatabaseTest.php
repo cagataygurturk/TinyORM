@@ -10,7 +10,7 @@ class DatabaseTest extends PHPUnit_Framework_TestCase {
 
     public function testDatabaseConnectivity() {
 
-        $db=Database::query("select 1 from entries limit 1")->execute()->fetchScalar();
+        $db=Database::query("select 1")->execute()->fetchScalar();
         $this->assertEquals(1, $db);
     }
 
