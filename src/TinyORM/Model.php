@@ -34,16 +34,16 @@ abstract class Model {
 
         $object = new $class_name;
 
-        $query = "SELECT * FROM `" . $object->table . "` WHERE 1 AND ";
+        $query = "SELECT * FROM `" . $object->table . "` WHERE 1  ";
 
         if (is_array($criteria)) {
             $params = array();
             foreach ($criteria as $field => $value) {
-                $query.=" `" . $field . "`=?";
+                $query.=" AND `" . $field . "`=?";
                 $params[] = $value;
             }
         } else {
-            $query.=" `" . $object->primary_key . "`=?";
+            $query.=" AND `" . $object->primary_key . "`=?";
             $params = array($criteria);
         }
 

@@ -68,6 +68,12 @@ class ModelTest extends PHPUnit_Framework_TestCase {
         $object = UserMockObject::find($username);
         $this->assertNotNull($object);
     }
+    
+     public function testFindByCriterias() {
+        $username = 'wondrous';
+        $object = UserMockObject::find(array('username'=>$username));
+        $this->assertNotNull($object);
+    }
 
     public function testDelete() {
 
