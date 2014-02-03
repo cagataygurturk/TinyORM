@@ -25,6 +25,11 @@ abstract class Model {
     }
 
     public function __get($name) {
+        if (is_int($this->data[$name]))
+            $this->data[$name] = intval($this->data[$name]);
+        if (is_float($this->data[$name]))
+            $this->data[$name] = floatval($this->data[$name]);
+
         return $this->data[$name];
     }
 
@@ -89,7 +94,7 @@ abstract class Model {
             }
             return $this->update();
         }
-      
+
         if (!$this->loaddata()) {
             return $this->insert();
         } else {
