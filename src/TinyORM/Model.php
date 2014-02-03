@@ -122,6 +122,10 @@ abstract class Model {
 
         try {
             Database::query($query)->execute($params);
+            $insert_id = Database::get_insert_id();
+            if ($insert_id) {
+                return $insert_id;
+            }
             return true;
         } catch (Exception $e) {
             return false;
