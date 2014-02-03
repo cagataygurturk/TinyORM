@@ -61,7 +61,7 @@ class Database {
     }
 
     public static function get_insert_id() {
-        return self::getInstance()->lastInsertId();
+        return intval(self::getInstance()->lastInsertId());
     }
 
 }
