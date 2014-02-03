@@ -60,17 +60,41 @@ abstract class Model {
         }
     }
 
+    private function loaddata() {
+        if (!$this->data[$this->primary_key]) {
+            return false;
+        }
+
+
+        $query = "SELECT * FROM `" . $this->table . "` WHERE 1 AND ";
+        $query.=" `" . $this->primary_key . "`=?";
+        $params = array($this->data[$this->primary_key]);
+        $query.=" limit 1";
+
+        $fetched = Database::query($query)->execute($params)->fetchOne();
+        if ($fetched) {
+            $this->data = $fetched;
+            $this->fetched = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function save() {
 
-        if (!$this->data[$this->primary_key]) {
-            throw new Exception(get_called_class() . " instance does not have a value for its primary key field " . $this->primary_key);
-        }
-
         if ($this->fetched) { //We know that this record exists in the table
+            if (!$this->data[$this->primary_key]) {
+                throw new Exception(get_called_class() . " instance does not have a value for its primary key field " . $this->primary_key);
+            }
             return $this->update();
         }
-
-        return $this->insert();
+      
+        if (!$this->loaddata()) {
+            return $this->insert();
+        } else {
+            return $this->update();
+        }
     }
 
     private function insert() {

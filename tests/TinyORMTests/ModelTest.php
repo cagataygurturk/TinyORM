@@ -13,7 +13,7 @@ class UserMockObject extends Model {
 class ModelTest extends PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass() {
-        
+
         Database::query("CREATE TABLE IF NOT EXISTS `TinyORMTest` (
                 `username` varchar(50) NOT NULL,
                 `value` varchar(255) NOT NULL,
@@ -22,7 +22,7 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     }
 
     public static function tearDownAfterClass() {
-        Database::query("DROP TABLE IF EXISTS `TinyORMTest`");
+        Database::query("DROP TABLE IF EXISTS `TinyORMTest`")->execute();
     }
 
     public function testInsert() {
@@ -36,6 +36,19 @@ class ModelTest extends PHPUnit_Framework_TestCase {
         $object->save();
 
         $object2 = UserMockObject::find($username);
+        $this->assertEquals($object2->value, $object->value);
+    }
+    
+    
+     public function testInsertWithoutPrimaryKey() {
+
+        $value = "test";
+
+        $object = new UserMockObject();
+        $object->value = $value;
+        $object->save();
+        
+        $object2 = UserMockObject::find(array('value'=>$value));
         $this->assertEquals($object2->value, $object->value);
     }
 
@@ -53,7 +66,7 @@ class ModelTest extends PHPUnit_Framework_TestCase {
     public function testFind() {
         $username = 'wondrous';
         $object = UserMockObject::find($username);
-        $this->assertEquals($username, $object->username);
+        $this->assertNotNull($object);
     }
 
     public function testDelete() {
@@ -62,6 +75,7 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 
         $object = UserMockObject::find($username);
 
+        $this->assertNotNull($object);
         $this->assertTrue($object->delete());
 
         $object2 = UserMockObject::find($username);
