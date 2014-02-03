@@ -56,7 +56,6 @@ class Database {
     }
 
     public static function commit() {
-        return;
         self::query("commit")->execute();
     }
 
