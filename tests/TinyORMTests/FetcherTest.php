@@ -49,6 +49,16 @@ class FetcherTest extends PHPUnit_Framework_TestCase {
         $query = Database::query("select * from TinyORMTest where username=?")->execute(array($username))->fetchOne();
         $this->assertEquals($username, $query['username']);
     }
+    
+    public function testCached() {
+        
+        $username='testusername';
+        Database::query("replace into TinyORMTest (username, value) values ('".$username."','testvalue') ")->execute();
+        
+        $query = Database::query("select * from TinyORMTest where username=?")->useResultCache(60, array($username));
+        $this->assertEquals($username, $query[0]['username']);
+    }
+    
 
 }
 
