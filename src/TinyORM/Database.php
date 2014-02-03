@@ -4,6 +4,7 @@ namespace TinyORM;
 
 use TinyORM\Query;
 use PDO;
+use Exception;
 
 class Database {
 

@@ -8,7 +8,7 @@
 
 namespace TinyORM;
 
-use TinyORM\Config;
+use Exception;
 use Memcache;
 
 class Cache {
