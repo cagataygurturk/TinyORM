@@ -19,12 +19,37 @@ abstract class Model {
     protected $changed_items = array();
     protected $fetched = false;
 
+    public function __construct($id = null) {
+        if (null != $id) {
+            $this->data[$this->primary_key] = $id;
+        }
+    }
+
     public function __set($name, $value) {
+
+
+        if (!$this->fetched) {
+            if ($this->data[$this->primary_key]) {
+                $this->loaddata();
+            }
+        }
+
+
         $this->data[$name] = $value;
         $this->changed_items[] = $name;
     }
 
     public function __get($name) {
+
+
+        if (!$this->fetched) {
+            if ($this->data[$this->primary_key]) {
+                $this->loaddata();
+            }
+        }
+
+
+
         if (is_int($this->data[$name]))
             $this->data[$name] = intval($this->data[$name]);
         if (is_float($this->data[$name]))
