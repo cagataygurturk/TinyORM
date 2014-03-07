@@ -101,7 +101,7 @@ abstract class Model {
     }
 
     private function loaddata() {
-        if (!$this->data[$this->primary_key] && $this->dontfetch) {
+        if (!$this->data[$this->primary_key] || $this->dontfetch) {
             return false;
         }
 
