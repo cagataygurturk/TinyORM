@@ -18,11 +18,21 @@ abstract class Model {
     protected $data;
     protected $changed_items = array();
     protected $fetched = false;
+    protected $dontfetch = false;
 
     public function __construct($id = null) {
         if (null != $id) {
             $this->data[$this->primary_key] = $id;
+            $this->dontfetch = true;
         }
+    }
+
+    public function disableFetch() {
+        $this->dontfetch = true;
+    }
+
+    public function enableFetch() {
+        $this->dontfetch = false;
     }
 
     public function __set($name, $value) {
@@ -91,7 +101,7 @@ abstract class Model {
     }
 
     private function loaddata() {
-        if (!$this->data[$this->primary_key]) {
+        if (!$this->data[$this->primary_key] && $this->dontfetch) {
             return false;
         }
 
