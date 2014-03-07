@@ -19,6 +19,7 @@ abstract class Model {
     protected $changed_items = array();
     protected $fetched = false;
     protected $dontfetch = false;
+    protected $cachable_fields = array();
 
     public function __construct($id = null) {
         if (null != $id) {
@@ -51,11 +52,20 @@ abstract class Model {
 
     public function __get($name) {
 
+        $isCacheable = in_array($name, $this->cachable_fields) && $this->primary_key && $this->data[$this->primary_key];
 
-        if (!$this->fetched) {
-            if ($this->data[$this->primary_key]) {
-                $this->loaddata();
+        if ($isCacheable) {
+            //maybe it's in cache
+            $key = md5('ci' . get_called_class() . $name . $this->data[$this->primary_key]);
+            $fromcache = Cache::get($key);
+            if ($fromcache) {
+                return $fromcache;
             }
+        }
+
+
+        if (!$this->fetched && !$this->data[$name] && $this->data[$this->primary_key]) {
+            $this->loaddata();
         }
 
 
@@ -65,6 +75,9 @@ abstract class Model {
         if (is_float($this->data[$name]))
             $this->data[$name] = floatval($this->data[$name]);
 
+        if ($isCacheable) {
+            Cache::set($key, $this->data[$name], 60 * 60);
+        }
         return $this->data[$name];
     }
 
@@ -104,6 +117,7 @@ abstract class Model {
         if (!$this->data[$this->primary_key] || $this->dontfetch) {
             return false;
         }
+        
 
 
         $query = "SELECT * FROM `" . $this->table . "` WHERE 1 AND ";
