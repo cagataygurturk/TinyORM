@@ -28,13 +28,17 @@ class Query {
         }
     }
 
-    public function useResultCache($timeout = 30, $params=null) {
+    public function useResultCache($timeout = 30, $params = null) {
         $cachekey = 'TinyORM-' . md5($this->sql);
+        if ($params) {
+            $cachekey.=md5(serialize($params));
+        }
+
         $cached = cache::get($cachekey);
         if ($cached === false) {
             $query = $this->connection->prepare($this->sql);
             $query->execute($params);
-            $cached=$query->fetchAll();
+            $cached = $query->fetchAll();
             cache::set($cachekey, $cached, $timeout);
         }
         return $cached;
