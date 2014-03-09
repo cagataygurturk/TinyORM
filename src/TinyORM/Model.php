@@ -46,6 +46,15 @@ abstract class Model {
         }
 
 
+        if (is_int($value))
+            $value = intval($value);
+        if (is_float($value))
+            $value = floatval($value);
+
+        if ($this->isValidDateTime($value)) {
+            $value = new \TinyORM\DateTime($this->data[$name], new \DateTimeZone('Europe/Istanbul'));
+        }
+
         $this->data[$name] = $value;
         $this->changed_items[] = $name;
     }

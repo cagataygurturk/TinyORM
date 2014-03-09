@@ -116,13 +116,17 @@ class ModelTest extends PHPUnit_Framework_TestCase {
 
         $object2->username = 'wondrous';
         $object2->datetime = new \TinyORM\DateTime('2011-02-23', new \DateTimeZone('Europe/Istanbul'));
-        
+
         $object2->save();
 
         $object3 = UserMockObject::find($username);
         $this->assertInstanceOf('\TinyORM\DateTime', $object3->datetime);
 
         $this->assertNotEquals($object->datetime->format('Y-m-d H:i:s'), $object3->datetime->format('Y-m-d H:i:s'));
+
+        $object4 = new UserMockObject();
+        $object4->date = '2013-02-03';
+        $this->assertInstanceOf('\TinyORM\DateTime', $object4->date);
     }
 
 }
