@@ -21,6 +21,10 @@ class DateTime extends \DateTime {
     public function getInterval() {
         return $this->interval;
     }
+    
+    public function __toString() {
+        return $this->format('Y-m-d H:i:s');
+    }
 
 }
 
