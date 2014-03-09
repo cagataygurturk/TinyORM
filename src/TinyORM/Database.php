@@ -58,6 +58,7 @@ class Database {
 
     public static function commit() {
         self::query("commit")->execute();
+        self::query("set autocommit=1")->execute();
     }
 
     public static function get_insert_id() {
