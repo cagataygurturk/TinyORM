@@ -50,6 +50,25 @@ abstract class Model {
         $this->changed_items[] = $name;
     }
 
+    private function isValidDateTime($dateTime) {
+        if (!is_string($dateTime)) {
+            return false;
+        }
+        if (preg_match("/^(\d{4})-(\d{2})-(\d{2}) ([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/", $dateTime, $matches)) {
+            if (checkdate($matches[2], $matches[3], $matches[1])) {
+                return true;
+            }
+        }
+
+        if (preg_match("/^(\d{4})-(\d{2})-(\d{2})$/", $dateTime, $matches)) {
+            if (checkdate($matches[2], $matches[3], $matches[1])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function __get($name) {
 
         $isCacheable = in_array($name, $this->cachable_fields) && $this->primary_key && $this->data[$this->primary_key];
@@ -74,6 +93,12 @@ abstract class Model {
             $this->data[$name] = intval($this->data[$name]);
         if (is_float($this->data[$name]))
             $this->data[$name] = floatval($this->data[$name]);
+
+
+        if ($this->isValidDateTime($this->data[$name])) {
+            return new \TinyORM\DateTime($this->data[$name], new \DateTimeZone('Europe/Istanbul'));
+        }
+
 
         if ($isCacheable) {
             Cache::set($key, $this->data[$name], 60 * 60);
@@ -117,7 +142,7 @@ abstract class Model {
         if (!$this->data[$this->primary_key] || $this->dontfetch) {
             return false;
         }
-        
+
 
 
         $query = "SELECT * FROM `" . $this->table . "` WHERE 1 AND ";
@@ -155,22 +180,50 @@ abstract class Model {
         $params = array();
         $fields = array();
         foreach ($this->data as $field => $value) {
-            $params[] = $value;
-            $fields[] = "`" . $field . "`";
+            if ($value instanceof \TinyORM\DateTime) {
+                if ($value->getInterval()) {
+                    if ($value->getInterval() == 'now()') {
+                        $v = array('column' => "`" . $field . "`", 'func' => "now()");
+                    } else {
+                        $v = array('column' => "`" . $field . "`", 'func' => "date_add(now(), interval " . $value->getInterval() . ")");
+                    }
+                } else {
+                    $v = array('column' => "`" . $field . "`", 'value' => $value->format('Y-m-d H:i:s'));
+                }
+            } else {
+                $v = array('column' => "`" . $field . "`", 'value' => $value);
+            }
+
+            $params[] = $v;
         }
 
-
         $query = "INSERT INTO `" . $this->table . "` ( ";
-        $query.=implode(',', $fields);
-        $query.=") VALUES (?";
-        for ($i = 1; $i < count($fields); $i++) {
-            $query.=",?";
+        for ($i = 0; $i < count($params); $i++) {
+            $query.=$params[$i]['column'];
+            if ($i < count($params) - 1) {
+                $query.=",";
+            }
+        }
+        $query.=") VALUES (";
+
+        $realparams = array();
+
+        for ($i = 0; $i < count($params); $i++) {
+            if ($params[$i]['func']) {
+                $query.=$params[$i]['func'];
+            } else {
+                $realparams[] = $params[$i]['value'];
+                $query.="?";
+            }
+            if ($i < count($params) - 1) {
+                $query.=",";
+            }
         }
 
         $query.=")";
 
         try {
-            Database::query($query)->execute($params);
+            Database::query($query)->execute($realparams);
             $insert_id = Database::get_insert_id();
             if ($insert_id) {
                 return $insert_id;
@@ -186,8 +239,23 @@ abstract class Model {
         $params = array();
         $fields = array();
         foreach ($this->changed_items as $field) {
-            $params[] = $this->data[$field];
-            $fields[] = $field . "=?";
+
+            $value = $this->data[$field];
+            if ($value instanceof \TinyORM\DateTime) {
+                if ($value->getInterval()) {
+                    if ($value->getInterval() == 'now()') {
+                        $fields[] = $field . "=now()";
+                    } else {
+                        $fields[] = $field . "=date_add(now(), interval " . $value->getInterval() . ")";
+                    }
+                } else {
+                    $fields[] = $field . "=?";
+                    $params[] = $value->format('Y-m-d H:i:s');
+                }
+            } else {
+                $fields[] = $field . "=?";
+                $params[] = $this->data[$field];
+            }
         }
 
         $params[] = $this->data[$this->primary_key];
