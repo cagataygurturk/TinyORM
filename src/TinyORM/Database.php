@@ -33,7 +33,7 @@ class Database {
                 if (!self::$config) {
                     throw new Exception("TinyORM configuration not set");
                 }
-                self::$objInstance = new PDO('mysql:host=' . self::$config['dbhost'] . ';dbname=' . self::$config['database'], self::$config['dbuser'], self::$config['dbpass'], array(
+                self::$objInstance = new PDO('mysql:host=' . self::$config['dbhost'] . ';dbname=' . self::$config['database'] . ';charset=UTF8', self::$config['dbuser'], self::$config['dbpass'], array(
                     PDO::ATTR_PERSISTENT => true,
                     PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
                     PDO::MYSQL_ATTR_DIRECT_QUERY => true,
