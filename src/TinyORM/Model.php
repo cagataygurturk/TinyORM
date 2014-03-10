@@ -20,12 +20,40 @@ abstract class Model {
     protected $fetched = false;
     protected $dontfetch = false;
     protected $cachable_fields = array();
+    protected $cacheable = false;
+    protected $cache_timeout = 60;
+    private $fetchedfromcache = false;
 
     public function __construct($id = null) {
         if (null != $id) {
             $this->data[$this->primary_key] = $id;
             $this->dontfetch = true;
         }
+    }
+
+    public function disableCache() {
+        $this->cacheable = false;
+    }
+
+    public function enableCache() {
+        $this->cacheable = true;
+    }
+
+    public function isCacheable() {
+        return $this->cacheable;
+    }
+
+    public function setCacheTimeout($timeout = 60) {
+        $timeout = intval($timeout);
+        if ($timeout > 0) {
+            $this->cache_timeout = $timeout;
+        } else {
+            $this->disableCache();
+        }
+    }
+
+    public function fetchedFromCache() {
+        return $this->fetchedfromcache;
     }
 
     public function disableFetch() {
@@ -136,7 +164,23 @@ abstract class Model {
 
         $query.=" limit 1";
 
-        $fetched = Database::query($query)->execute($params)->fetchOne();
+
+
+        if ($object->isCacheable()) {
+            $cachekey = $object->getCacheKey();
+            $fetched = Cache::get($cachekey);
+        }
+
+        if (!$fetched || $fetched === false) {
+            $fetched = Database::query($query)->execute($params)->fetchOne();
+        } else {
+            $object->fetchedfromcache = true;
+        }
+
+        if ($object->isCacheable()) {
+            Cache::set($cachekey, $fetched, $object->cache_timeout);
+        }
+
         $object->data = $fetched;
         $object->fetched = true;
 
@@ -147,22 +191,46 @@ abstract class Model {
         }
     }
 
+    private function getCacheKey() {
+        return md5('object_cache_' . get_called_class() . $this->data[$this->primary_key]);
+    }
+
     private function loaddata() {
         if (!$this->data[$this->primary_key] || $this->dontfetch) {
             return false;
         }
 
 
+        $cachekey = $this->getCacheKey();
+
+        if ($this->isCacheable()) {
+
+            $cached = Cache::get($cachekey);
+
+            if ($cached !== false) {
+                $this->data = $cached;
+                $this->fetched = true;
+                $this->fetchedfromcache = true;
+
+                return true;
+            }
+        }
 
         $query = "SELECT * FROM `" . $this->table . "` WHERE 1 AND ";
         $query.=" `" . $this->primary_key . "`=?";
         $params = array($this->data[$this->primary_key]);
         $query.=" limit 1";
 
-        $fetched = Database::query($query)->execute($params)->fetchOne();
-        if ($fetched) {
-            $this->data = $fetched;
+
+        $fetched_data = Database::query($query)->execute($params)->fetchOne();
+        if ($fetched_data) {
+            $this->data = $fetched_data;
             $this->fetched = true;
+
+            if ($this->isCacheable()) {
+
+                Cache::set($cachekey, $this->data, $this->cache_timeout);
+            }
             return true;
         } else {
             return false;

@@ -10,6 +10,14 @@ class UserMockObject extends Model {
 
 }
 
+class UserMockObjectCacheable extends Model {
+
+    protected $table = 'TinyORMTest';
+    protected $primary_key = "username";
+    protected $cacheable = true;
+
+}
+
 class ModelTest extends PHPUnit_Framework_TestCase {
 
     public static function setUpBeforeClass() {
@@ -127,6 +135,22 @@ class ModelTest extends PHPUnit_Framework_TestCase {
         $object4 = new UserMockObject();
         $object4->date = '2013-02-03';
         $this->assertInstanceOf('\TinyORM\DateTime', $object4->date);
+    }
+
+    public function testFindCache() {
+        $username = 'cachetest';
+        $value = 'cachetestvalue';
+        $object = new UserMockObjectCacheable();
+        $object->username = $username;
+        $object->value = $value;
+        $object->save();
+
+        $object2 = UserMockObjectCacheable::find($username);
+        $object3 = UserMockObjectCacheable::find($username);
+        $this->assertTrue($object3->isCacheable());
+        $this->assertEquals($value, $object2->value);
+        $this->assertEquals($value, $object3->value);
+        $this->assertTrue($object3->fetchedFromCache());
     }
 
 }
