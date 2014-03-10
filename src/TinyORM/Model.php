@@ -382,6 +382,14 @@ abstract class Model {
         }
     }
 
+    public function inValidateCache() {
+        if ($this->isCacheable()) {
+            Cache::delete($this->getCacheKey());
+            return true;
+        }
+        return false;
+    }
+
 }
 
 ?>
