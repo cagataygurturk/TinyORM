@@ -177,9 +177,9 @@ abstract class Model {
             $object->fetchedfromcache = true;
         }
 
-        if ($object->isCacheable()) {
-            Cache::set($cachekey, $fetched, $object->cache_timeout);
-        }
+
+        Cache::set($cachekey, $fetched, $object->cache_timeout);
+
 
         $object->data = $fetched;
         $object->fetched = true;
@@ -227,10 +227,10 @@ abstract class Model {
             $this->data = $fetched_data;
             $this->fetched = true;
 
-            if ($this->isCacheable()) {
 
-                Cache::set($cachekey, $this->data, $this->cache_timeout);
-            }
+
+            Cache::set($cachekey, $this->data, $this->cache_timeout);
+
             return true;
         } else {
             return false;
