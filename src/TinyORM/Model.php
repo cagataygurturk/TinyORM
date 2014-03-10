@@ -167,7 +167,13 @@ abstract class Model {
 
 
         if ($object->isCacheable()) {
-            $cachekey = $object->getCacheKey();
+            if (!is_array($criteria)) {
+                $cache_criterias = array($object->primary_key => $criteria);
+            } else {
+                $cache_criterias = $criteria;
+            }
+
+            $cachekey = $object->getCacheKey($cache_criterias);
             $fetched = Cache::get($cachekey);
         }
 
@@ -191,8 +197,8 @@ abstract class Model {
         }
     }
 
-    private function getCacheKey() {
-        return md5('object_cache_' . get_called_class() . $this->data[$this->primary_key]);
+    private function getCacheKey($criteria) {
+        return md5('objectcache_' . md5(get_called_class() . serialize($criteria)));
     }
 
     private function loaddata() {
@@ -201,7 +207,7 @@ abstract class Model {
         }
 
 
-        $cachekey = $this->getCacheKey();
+        $cachekey = $this->getCacheKey($this->data[$this->primary_key]);
 
         if ($this->isCacheable()) {
 
@@ -384,7 +390,7 @@ abstract class Model {
 
     public function inValidateCache() {
         if ($this->isCacheable()) {
-            Cache::delete($this->getCacheKey());
+            Cache::delete($this->getCacheKey($this->data[$this->primary_key]));
             return true;
         }
         return false;
