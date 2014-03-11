@@ -22,7 +22,7 @@ class Cache {
 
     private static function inst() {
         if (!self::$instance) {
-            self::$instance = new Memcache;
+            self::$instance = new Memcache();
             if (!self::$config) {
                 self::$config = @include 'Config.php';
             }
