@@ -1,8 +1,6 @@
 machine:
   php:
     version: 5.4.6
-  timezone:
-    Europe/Istanbul
     
 dependencies:
   pre:
