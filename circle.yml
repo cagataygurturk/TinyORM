@@ -1,0 +1,14 @@
+machine:
+  php:
+    version: 5.4
+  timezone:
+    Europe/Istanbul
+    
+dependencies:
+  pre:
+    - pecl install memcache
+    - composer install --optimize-autoloader
+    
+test:
+  override:
+    - phpunit

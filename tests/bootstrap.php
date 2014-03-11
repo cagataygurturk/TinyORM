@@ -4,9 +4,9 @@ require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
 $config=array(
     'dbhost' => "127.0.0.1",
-    'dbuser' => "travis",
+    'dbuser' => "ubuntu",
     'dbpass' => "",
-    'database' => "myapp_test",
+    'database' => "circle_test",
     'memcache' => array(
         array('host' => '127.0.0.1')
     )
