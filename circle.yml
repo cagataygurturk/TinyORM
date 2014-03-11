@@ -4,6 +4,7 @@ machine:
     
 dependencies:
   pre:
+    - printf "\n" | pecl install -f memcache
     - composer install --optimize-autoloader
     
 test:
