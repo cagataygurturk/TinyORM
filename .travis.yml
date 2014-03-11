@@ -3,5 +3,6 @@ php:
   - 5.4
 
 before_script:
-  - composer install
+  - printf "\n" | pecl install -f memcache
+  - composer update --optimize-autoloader
   - phpunit
