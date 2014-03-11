@@ -1,7 +1,8 @@
 language: php
 php:
   - 5.4
-
+services:
+  - memcached # will start memcached
 before_script:
   - printf "\n" | pecl install -f memcache
   - composer update --optimize-autoloader

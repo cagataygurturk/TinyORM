@@ -3,10 +3,10 @@ require_once realpath(__DIR__ . '/../vendor/autoload.php');
 
 
 $config=array(
-    'dbhost' => "DB",
-    'dbuser' => "USER",
-    'dbpass' => "PASS",
-    'database' => "DBNAME",
+    'dbhost' => "127.0.0.1",
+    'dbuser' => "travis",
+    'dbpass' => "",
+    'database' => "myapp_test",
     'memcache' => array(
         array('host' => '127.0.0.1')
     )
