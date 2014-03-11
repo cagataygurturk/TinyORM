@@ -4,6 +4,7 @@ php:
 services:
   - memcached # will start memcached
 before_script:
+  - mysql -e 'create database myapp_test;'
   - printf "\n" | pecl install -f memcache
   - composer update --optimize-autoloader
   - phpunit
