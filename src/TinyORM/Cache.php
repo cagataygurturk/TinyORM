@@ -22,7 +22,7 @@ class Cache {
 
     private static function inst() {
         if (!self::$instance) {
-            self::$instance = new Memcache();
+            self::$instance = new \Memcached();
             if (!self::$config) {
                 self::$config = @include 'Config.php';
             }
@@ -43,7 +43,7 @@ class Cache {
 
     public static function set($key, $object, $timeout = 10) {
 
-        return self::inst()->set('TinyOrm_' . $key, $object, false, $timeout);
+        return self::inst()->set('TinyOrm_' . $key, $object, $timeout);
     }
 
     public static function delete($key) {
