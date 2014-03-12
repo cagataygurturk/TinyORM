@@ -4,7 +4,7 @@ machine:
     
 dependencies:
   pre:
-    - printf "\n" | pecl install -f memcached
+    - printf "\n" | pecl install -f memcached-2.0.1
     - composer config -g github-oauth.github.com 01a3f62f53abca01cf2267270ff7639b347c855a
     - composer install --optimize-autoloader
     
