@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit bootstrap="tests/bootstrap.php">
+<phpunit bootstrap="tests/bootstrap.php" 
+         convertNoticesToExceptions="false"
+         convertWarningsToExceptions="false">
     <testsuites>
         <testsuite name="TinyORM Test Suite">
             <directory>./tests</directory>
