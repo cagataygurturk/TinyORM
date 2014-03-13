@@ -26,7 +26,7 @@ class Cache {
             if (!self::$config) {
                 self::$config = @include 'Config.php';
             }
-            if(!self::$config) {
+            if (!self::$config) {
                 throw new Exception("TinyORM configuration not set");
             }
             foreach (self::$config['memcache'] as $s) {
@@ -36,19 +36,24 @@ class Cache {
         return self::$instance;
     }
 
+    private static function cache_key($key) {
+        global $_ENV;
+        return 'TinyOrm_' . ($_ENV['HPHP'] ? 'hp_' : '') . $key;
+    }
+
     public static function get($key) {
 
-        return self::inst()->get('TinyOrm_' . $key);
+        return self::inst()->get(self::cache_key($key));
     }
 
     public static function set($key, $object, $timeout = 10) {
 
-        return self::inst()->set('TinyOrm_' . $key, $object, $timeout);
+        return self::inst()->set(self::cache_key($key), $object, $timeout);
     }
 
     public static function delete($key) {
 
-        return self::inst()->delete('TinyOrm_' . $key);
+        return self::inst()->delete(self::cache_key($key) . $key);
     }
 
 }
