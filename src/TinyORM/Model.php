@@ -126,10 +126,13 @@ abstract class Model {
 
 
 
-        if (is_int($this->data[$name]))
-            $this->data[$name] = intval($this->data[$name]);
-        if (is_float($this->data[$name]))
-            $this->data[$name] = floatval($this->data[$name]);
+        if (is_numeric($this->data[$name])) {
+            if ((int) $this->data[$name] == $this->data[$name]) {
+                $this->data[$name] = intval($this->data[$name]);
+            } else if (strpos($this->data[$name], '.') !== false) {
+                $this->data[$name] = floatval($this->data[$name]);
+            }
+        }
 
 
         if ($this->isValidDateTime($this->data[$name])) {
