@@ -23,12 +23,21 @@ abstract class Model {
     protected $cacheable = false;
     protected $cache_timeout = 60;
     private $fetchedfromcache = false;
+    private static $globalCache = true;
 
     public function __construct($id = null) {
         if (null != $id) {
             $this->data[$this->primary_key] = $id;
             $this->dontfetch = true;
         }
+    }
+
+    public static function disableGlobalCache() {
+        self::$globalCache = false;
+    }
+
+    public static function enableGlobalCache() {
+        self::$globalCache = true;
     }
 
     public function disableCache() {
@@ -108,7 +117,7 @@ abstract class Model {
 
     public function __get($name) {
 
-        $isCacheable = in_array($name, $this->cachable_fields) && $this->primary_key && $this->data[$this->primary_key];
+        $isCacheable = in_array($name, $this->cachable_fields) && $this->primary_key && $this->data[$this->primary_key] && self::$globalCache;
 
         if ($isCacheable) {
             //maybe it's in cache
@@ -169,7 +178,7 @@ abstract class Model {
 
 
 
-        if ($object->isCacheable()) {
+        if ($object->isCacheable() && self::$globalCache) {
             if (!is_array($criteria)) {
                 $cache_criterias = array($object->primary_key => $criteria);
             } else {
