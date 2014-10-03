@@ -9,7 +9,7 @@
 namespace TinyORM;
 
 use Exception;
-use Memcached;
+use Memcache;
 
 class Cache {
 
@@ -22,27 +22,15 @@ class Cache {
 
     private static function inst() {
         if (!self::$instance) {
-            self::$instance = new Memcached('tinyorm');
+            self::$instance = new \Memcached();
             if (!self::$config) {
-                self::$instance = @include 'Config.php';
+                self::$config = @include 'Config.php';
             }
-            $ss = self::$instance->getServerList();
-            if (empty($ss)) {
-                self::$instance->setOption(Memcached::OPT_RECV_TIMEOUT, 1000);
-                self::$instance->setOption(Memcached::OPT_SEND_TIMEOUT, 1000);
-                self::$instance->setOption(Memcached::OPT_TCP_NODELAY, true);
-                self::$instance->setOption(Memcached::OPT_SERVER_FAILURE_LIMIT, 50);
-                self::$instance->setOption(Memcached::OPT_CONNECT_TIMEOUT, 500);
-                self::$instance->setOption(Memcached::OPT_RETRY_TIMEOUT, 300);
-                self::$instance->setOption(Memcached::OPT_DISTRIBUTION, Memcached::DISTRIBUTION_CONSISTENT);
-                self::$instance->setOption(Memcached::OPT_REMOVE_FAILED_SERVERS, true);
-                self::$instance->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
-                if (!self::$config) {
-                    throw new Exception("TinyORM configuration not set");
-                }
-                foreach (self::$config['memcache'] as $s) {
-                    self::$instance->addServer($s['host'], ($s['port'] ? $s['port'] : '11211'));
-                }
+            if (!self::$config) {
+                throw new Exception("TinyORM configuration not set");
+            }
+            foreach (self::$config['memcache'] as $s) {
+                self::$instance->addServer($s['host'], ($s['port'] ? $s['port'] : '11211'));
             }
         }
         return self::$instance;
@@ -55,11 +43,22 @@ class Cache {
 
     public static function get($key) {
 
-        return self::inst()->get(self::cache_key($key));
+        $o = self::inst()->get(self::cache_key($key));
+        if (is_array($o)) {
+            if (isset($o['c'])) {
+                return $o['c'];
+            } else {
+                return false;
+            }
+        } else {
+            return $o;
+        }
     }
 
     public static function set($key, $object, $timeout = 10) {
-
+        if (is_array($object)) {
+            $object = array('c' => $object);
+        }
         return self::inst()->set(self::cache_key($key), $object, $timeout);
     }
 
