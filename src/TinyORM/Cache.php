@@ -64,7 +64,7 @@ class Cache {
 
     public static function delete($key) {
 
-        return self::inst()->delete(self::cache_key($key) . $key);
+        return self::inst()->delete(self::cache_key($key));
     }
 
 }
