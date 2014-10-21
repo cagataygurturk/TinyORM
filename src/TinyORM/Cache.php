@@ -9,7 +9,7 @@
 namespace TinyORM;
 
 use Exception;
-use Memcache;
+use Memcached;
 
 class Cache {
 
@@ -22,15 +22,18 @@ class Cache {
 
     private static function inst() {
         if (!self::$instance) {
-            self::$instance = new \Memcached();
-            if (!self::$config) {
-                self::$config = @include 'Config.php';
-            }
-            if (!self::$config) {
-                throw new Exception("TinyORM configuration not set");
-            }
-            foreach (self::$config['memcache'] as $s) {
-                self::$instance->addServer($s['host'], ($s['port'] ? $s['port'] : '11211'));
+            self::$instance = new Memcached('TinyOrm');
+            self::$instance->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+            if (!count(self::$instance->getServerList())) {
+                if (!self::$config) {
+                    self::$config = @include 'Config.php';
+                }
+                if (!self::$config) {
+                    throw new Exception("TinyORM configuration not set");
+                }
+                foreach (self::$config['memcache'] as $s) {
+                    self::$instance->addServer($s['host'], ($s['port'] ? $s['port'] : '11211'));
+                }
             }
         }
         return self::$instance;
@@ -68,5 +71,3 @@ class Cache {
     }
 
 }
-
-?>
