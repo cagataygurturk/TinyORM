@@ -23,7 +23,10 @@ class Cache {
     private static function inst() {
         if (!self::$instance) {
             self::$instance = new Memcached('TinyOrm');
-            self::$instance->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
+            self::$instance->setOption(Memcached::OPT_CONNECT_TIMEOUT, 10);
+            self::$instance->setOption(Memcached::OPT_DISTRIBUTION, Memcached::DISTRIBUTION_CONSISTENT);
+            self::$instance->setOption(Memcached::OPT_REMOVE_FAILED_SERVERS, true);
+            self::$instance->setOption(Memcached::OPT_RETRY_TIMEOUT, 1);
             if (!count(self::$instance->getServerList())) {
                 if (!self::$config) {
                     self::$config = @include 'Config.php';
