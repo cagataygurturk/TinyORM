@@ -94,6 +94,7 @@ abstract class Model {
 
         $this->data[$name] = $value;
         $this->changed_items[] = $name;
+        Cache::delete($this->getFieldKey($name));
     }
 
     private function isValidDateTime($dateTime) {
@@ -115,13 +116,17 @@ abstract class Model {
         return false;
     }
 
+    private function getFieldKey($name) {
+        return md5('ci' . get_called_class() . $name . $this->data[$this->primary_key]);
+    }
+
     public function __get($name) {
 
         $isCacheable = in_array($name, $this->cachable_fields) && $this->primary_key && $this->data[$this->primary_key] && self::$globalCache;
 
         if ($isCacheable) {
             //maybe it's in cache
-            $key = md5('ci' . get_called_class() . $name . $this->data[$this->primary_key]);
+            $key = $this->getFieldKey($name);
             $fromcache = Cache::get($key);
             if ($fromcache) {
                 return $fromcache;
@@ -213,7 +218,11 @@ abstract class Model {
         return md5('objectcache_' . md5(get_called_class() . serialize($criteria)));
     }
 
-    private function loaddata() {
+    public function reloadData() {
+        $this->loaddata(true);
+    }
+
+    private function loaddata($force = false) {
         if (!$this->data[$this->primary_key] || $this->dontfetch) {
             return false;
         }
@@ -221,7 +230,7 @@ abstract class Model {
 
         $cachekey = $this->getCacheKey($this->data[$this->primary_key]);
 
-        if ($this->isCacheable()) {
+        if ($this->isCacheable() && !$force) {
 
             $cached = Cache::get($cachekey);
 
@@ -409,5 +418,3 @@ abstract class Model {
     }
 
 }
-
-?>
