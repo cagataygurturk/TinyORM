@@ -330,6 +330,7 @@ abstract class Model {
             Database::query($query)->execute($realparams);
             $insert_id = Database::get_insert_id();
             if ($insert_id) {
+                $this->data[$this->primary_key] = $insert_id;
                 return $insert_id;
             }
             return true;
