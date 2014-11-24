@@ -84,7 +84,7 @@ class Database {
                     return self::getMasterInstance();
                 }
 
-                self::$slaveInstance = self::getConnection($slave['dbhost'], config::$database, $slave['dbuser'], $slave['dbpass']);
+                self::$slaveInstance = self::getConnection($slave['dbhost'], self::$config['database'], $slave['dbuser'], $slave['dbpass']);
             } catch (PDOException $e) {
                 echo $e->getMessage();
             }
