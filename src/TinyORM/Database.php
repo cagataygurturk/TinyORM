@@ -8,8 +8,16 @@ use Exception;
 
 class Database {
 
-    private static $objInstance;
+    private static $masterInstance;
+    private static $slaveInstance;
     private static $config;
+
+    const QUERY_UPDATE = 1;
+    const QUERY_SELECT = 2;
+
+    private static $queryTypes = array(
+        'insert', 'update', 'delete', 'replace', 'master', 'truncate', 'rename', 'alter', 'drop', 'create'
+    );
 
     private function __construct() {
         
@@ -24,8 +32,23 @@ class Database {
     }
 
     private static function getInstance() {
-        global $_SERVER;
-        if (!self::$objInstance) {
+        return self::getMasterInstance();
+    }
+
+    private static function getConnection($host, $database, $user, $pass) {
+        $con = new PDO('mysql:host=' . $host . ';dbname=' . $database, $user, $pass, array(
+            //PDO::ATTR_PERSISTENT => true,
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+            //PDO::MYSQL_ATTR_DIRECT_QUERY => true,
+            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
+        );
+
+        $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        return $con;
+    }
+
+    private static function getMasterInstance() {
+        if (!self::$masterInstance) {
             try {
                 if (!self::$config) {
                     self::$config = @include 'Config.php';
@@ -33,22 +56,64 @@ class Database {
                 if (!self::$config) {
                     throw new Exception("TinyORM configuration not set");
                 }
-                self::$objInstance = new PDO('mysql:host=' . self::$config['dbhost'] . ';dbname=' . self::$config['database'] . ';charset=UTF8', self::$config['dbuser'], self::$config['dbpass'], array(
-                    //PDO::ATTR_PERSISTENT => true,
-                    PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
-                    //PDO::MYSQL_ATTR_DIRECT_QUERY => true,
-                    PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8")
-                );
-                self::$objInstance->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+                self::$masterInstance = self::getConnection(self::$config['dbhost'], self::$config['database'], self::$config['dbuser'], self::$config['dbpass']);
             } catch (PDOException $e) {
                 echo $e->getMessage();
             }
         }
-        return self::$objInstance;
+        return self::$masterInstance;
+    }
+
+    private static function getSlaveInstance() {
+        if ((rand(0, 1) == 1)) {
+            return self::getMasterInstance();
+        }
+        if (!self::$slaveInstance) {
+            try {
+                if (!self::$config) {
+                    self::$config = @include 'Config.php';
+                }
+                if (!self::$config) {
+                    throw new Exception("TinyORM configuration not set");
+                }
+
+                if (self::$config['slaves']) {
+                    $slave = self::$config['slaves'][array_rand(self::$config['slaves'])];
+                } else {
+                    return self::getMasterInstance();
+                }
+
+                self::$slaveInstance = self::getConnection($slave['dbhost'], config::$database, $slave['dbuser'], $slave['dbpass']);
+            } catch (PDOException $e) {
+                echo $e->getMessage();
+            }
+        }
+        return self::$slaveInstance;
+    }
+
+    private static function getQueryType($sql) {
+        foreach (self::$queryTypes as $type) {
+            if (strpos($sql, $type) !== false) {
+                return self::QUERY_UPDATE;
+            }
+        }
+
+        return self::QUERY_SELECT;
     }
 
     public static function query($sql) {
-        return new Query($sql, self::getInstance());
+        switch (self::getQueryType($sql)) {
+            case self::QUERY_UPDATE:
+                $con = self::getMasterInstance();
+                break;
+            case self::QUERY_SELECT:
+                $con = self::getSlaveInstance();
+                break;
+        }
+
+
+        return new Query($sql, $con);
     }
 
     public static function begin() {
@@ -66,5 +131,3 @@ class Database {
     }
 
 }
-
-?>
