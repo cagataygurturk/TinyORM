@@ -173,10 +173,16 @@ abstract class Model {
             foreach ($criteria as $field => $value) {
                 $query.=" AND `" . $field . "`=?";
                 $params[] = $value;
+                if (!$value) {
+                    return null;
+                }
             }
         } else {
             $query.=" AND `" . $object->primary_key . "`=?";
             $params = array($criteria);
+            if (!$criteria) {
+                return null;
+            }
         }
 
         $query.=" limit 1";
