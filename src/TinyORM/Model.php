@@ -166,7 +166,7 @@ abstract class Model {
 
         $object = new $class_name;
 
-        $query = "SELECT * FROM `" . $object->table . "` WHERE 1  ";
+        $query = "SELECT * FROM " . $object->table . " WHERE 1  ";
 
         if (is_array($criteria)) {
             $params = array();
@@ -243,7 +243,7 @@ abstract class Model {
             }
         }
 
-        $query = "SELECT * FROM `" . $this->table . "` WHERE 1 AND ";
+        $query = "SELECT * FROM " . $this->table . " WHERE 1 AND ";
         $query.=" `" . $this->primary_key . "`=?";
         $params = array($this->data[$this->primary_key]);
         $query.=" limit 1";
@@ -301,7 +301,7 @@ abstract class Model {
             $params[] = $v;
         }
 
-        $query = "INSERT INTO `" . $this->table . "` ( ";
+        $query = "INSERT INTO " . $this->table . " ( ";
         for ($i = 0; $i < count($params); $i++) {
             $query.=$params[$i]['column'];
             if ($i < count($params) - 1) {
@@ -364,7 +364,7 @@ abstract class Model {
         }
 
         $params[] = $this->data[$this->primary_key];
-        $query = "UPDATE `" . $this->table . "` SET ";
+        $query = "UPDATE " . $this->table . " SET ";
         $query.=implode(',', $fields);
         $query.=" WHERE " . $this->primary_key . " = ?";
         $query.=" LIMIT 1";
@@ -386,7 +386,7 @@ abstract class Model {
             throw new Exception(get_called_class() . " instance does not have a value for its primary key field " . $this->primary_key);
         }
 
-        $query = "DELETE FROM `" . $this->table . "` WHERE 1 AND ";
+        $query = "DELETE FROM " . $this->table . " WHERE 1 AND ";
         if (is_array($criteria)) {
             $params = array();
             foreach ($criteria as $field => $value) {
