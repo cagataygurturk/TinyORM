@@ -22,7 +22,7 @@ class Cache {
 
     private static function inst() {
         if (!self::$instance) {
-            self::$instance = new Memcached('TinyOrm');
+            self::$instance = new Memcached(md5(serialize(self::$config['memcache'])));
             self::$instance->setOption(Memcached::OPT_LIBKETAMA_COMPATIBLE, true);
 
             if (!count(self::$instance->getServerList())) {
