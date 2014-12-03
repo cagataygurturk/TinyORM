@@ -16,7 +16,7 @@ class Database {
     const QUERY_SELECT = 2;
 
     private static $queryTypes = array(
-        'insert', 'update', 'delete', 'replace', 'master', 'truncate', 'rename', 'alter', 'drop', 'create'
+        'insert', 'update', 'delete', 'replace', 'master', 'truncate', 'rename', 'alter', 'drop', 'create', 'SQL_CALC_FOUND_ROWS', 'FOUND_ROWS'
     );
 
     private function __construct() {
