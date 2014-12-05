@@ -24,7 +24,7 @@ class Query {
             $query->execute($params);
             return new Fetcher($query);
         } catch (Exception $e) {
-            echo $e->getMessage();
+            
         }
     }
 
