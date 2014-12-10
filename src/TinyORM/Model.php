@@ -134,7 +134,7 @@ abstract class Model {
         }
 
 
-        if (!$this->fetched && !$this->data[$name] && $this->data[$this->primary_key]) {
+        if (!$this->fetched && !isset($this->data[$name]) && isset($this->data[$this->primary_key])) {
             $this->loaddata();
         }
 
