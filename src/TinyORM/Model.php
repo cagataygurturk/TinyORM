@@ -140,7 +140,7 @@ abstract class Model {
 
 
 
-        if (is_numeric($this->data[$name])) {
+        if (isset($this->data[$name]) && is_numeric($this->data[$name])) {
             if ((int) $this->data[$name] == $this->data[$name]) {
                 $this->data[$name] = intval($this->data[$name]);
             } else if (strpos($this->data[$name], '.') !== false) {
@@ -149,7 +149,7 @@ abstract class Model {
         }
 
 
-        if ($this->isValidDateTime($this->data[$name])) {
+        if (isset($this->data[$name]) && $this->isValidDateTime($this->data[$name])) {
             return new \TinyORM\DateTime($this->data[$name], new \DateTimeZone('Europe/Istanbul'));
         }
 
@@ -157,7 +157,11 @@ abstract class Model {
         if ($isCacheable) {
             Cache::set($key, $this->data[$name], 60 * 60);
         }
-        return $this->data[$name];
+
+        if (isset($this->data[$name])) {
+            return $this->data[$name];
+        }
+        return null;
     }
 
     public static function find($criteria) {
