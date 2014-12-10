@@ -16,7 +16,7 @@ class Database {
     const QUERY_SELECT = 2;
 
     private static $queryTypes = array(
-        'insert', 'update', 'delete', 'replace', 'master', 'truncate', 'rename', 'alter', 'drop', 'create', 'SQL_CALC_FOUND_ROWS', 'FOUND_ROWS'
+        'insert', 'update', 'delete', 'replace', 'master', 'truncate', 'rename', 'alter', 'drop', 'create', 'sql_calc_found_rows', 'found_rows'
     );
 
     private function __construct() {
@@ -93,6 +93,7 @@ class Database {
     }
 
     private static function getQueryType($sql) {
+        $sql=strtolower($sql);
         foreach (self::$queryTypes as $type) {
             if (strpos($sql, $type) !== false) {
                 return self::QUERY_UPDATE;
