@@ -154,7 +154,7 @@ abstract class Model {
         }
 
 
-        if ($isCacheable) {
+        if ($isCacheable && isset($this->data[$name])) {
             Cache::set($key, $this->data[$name], 60 * 60);
         }
 
