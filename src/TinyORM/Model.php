@@ -204,15 +204,15 @@ abstract class Model {
             $fetched = Cache::get($cachekey);
         }
 
-        if (isset($fetched) && ($fetched === false || !$fetched)) {
+        if (!$fetched || $fetched === false) {
             $fetched = Database::query($query)->execute($params)->fetchOne();
         } else {
             $object->fetchedfromcache = true;
         }
 
-        if (isset($cachekey)) {
-            Cache::set($cachekey, $fetched, $object->cache_timeout);
-        }
+
+        Cache::set($cachekey, $fetched, $object->cache_timeout);
+
 
         $object->data = $fetched;
         $object->fetched = true;
