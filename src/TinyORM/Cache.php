@@ -44,7 +44,7 @@ class Cache {
 
     private static function cache_key($key) {
         global $_ENV;
-        return 'TinyOrm_' . (isset($_ENV['HPHP']) ? 'hp_' : '') . $key;
+        return 't' . (isset($_ENV['HPHP']) ? 'hp' : '') . $key;
     }
 
     public static function get($key) {
