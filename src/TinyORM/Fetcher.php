@@ -44,6 +44,9 @@ class Fetcher {
         return $x[0];
     }
 
+    public function affectedRows() {
+        return $this->query->rowCount();
+    }
 }
 
 ?>
