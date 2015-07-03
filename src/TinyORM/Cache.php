@@ -49,22 +49,10 @@ class Cache {
 
     public static function get($key) {
 
-        $o = self::inst()->get(self::cache_key($key));
-        if (is_array($o)) {
-            if (isset($o['c'])) {
-                return $o['c'];
-            } else {
-                return false;
-            }
-        } else {
-            return $o;
-        }
+        return self::inst()->get(self::cache_key($key));
     }
 
     public static function set($key, $object, $timeout = 10) {
-        if (is_array($object)) {
-            $object = array('c' => $object);
-        }
         return self::inst()->set(self::cache_key($key), $object, $timeout);
     }
 
