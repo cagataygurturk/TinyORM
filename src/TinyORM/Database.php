@@ -92,8 +92,12 @@ class Database {
         return self::$slaveInstance;
     }
 
+    private static function hasSlave() {
+        return count(self::$config['slaves']) > 0;
+    }
+
     private static function getQueryType($sql) {
-        $sql=strtolower($sql);
+        $sql = strtolower($sql);
         foreach (self::$queryTypes as $type) {
             if (strpos($sql, $type) !== false) {
                 return self::QUERY_UPDATE;
@@ -104,15 +108,18 @@ class Database {
     }
 
     public static function query($sql) {
-        switch (self::getQueryType($sql)) {
-            case self::QUERY_UPDATE:
-                $con = self::getMasterInstance();
-                break;
-            case self::QUERY_SELECT:
-                $con = self::getSlaveInstance();
-                break;
+        if (self::hasSlave()) {
+            switch (self::getQueryType($sql)) {
+                case self::QUERY_UPDATE:
+                    $con = self::getMasterInstance();
+                    break;
+                case self::QUERY_SELECT:
+                    $con = self::getSlaveInstance();
+                    break;
+            }
+        } else {
+            $con = self::getMasterInstance();
         }
-
 
         return new Query($sql, $con);
     }
