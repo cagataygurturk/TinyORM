@@ -5,7 +5,7 @@ machine:
 dependencies:
   pre:
     - printf "\n" | pecl install -f memcached-2.0.1
-    - composer install --optimize-autoloader
+    - composer install --optimize-autoloader --prefer-source --no-interaction
     
 test:
   override:
