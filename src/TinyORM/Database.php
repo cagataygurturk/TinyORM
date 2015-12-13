@@ -95,7 +95,7 @@ class Database {
     }
 
     private static function hasSlave() {
-        return count(self::$config['slaves']) > 0;
+        return isset(self::$config['slaves']) && count(self::$config['slaves']) > 0;
     }
 
     private static function getQueryType($sql) {

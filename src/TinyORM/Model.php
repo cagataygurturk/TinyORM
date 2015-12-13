@@ -11,7 +11,8 @@ namespace TinyORM;
 use TinyORM\Database;
 use Exception;
 
-abstract class Model {
+abstract class Model
+{
 
     protected $table;
     protected $primary_key = "id";
@@ -25,34 +26,41 @@ abstract class Model {
     private $fetchedfromcache = false;
     private static $globalCache = true;
 
-    public function __construct($id = null) {
+    public function __construct($id = null)
+    {
         if (null != $id) {
             $this->data[$this->primary_key] = $id;
-            $this->dontfetch = true;
+            $this->dontfetch                = true;
         }
     }
 
-    public static function disableGlobalCache() {
+    public static function disableGlobalCache()
+    {
         self::$globalCache = false;
     }
 
-    public static function enableGlobalCache() {
+    public static function enableGlobalCache()
+    {
         self::$globalCache = true;
     }
 
-    public function disableCache() {
+    public function disableCache()
+    {
         $this->cacheable = false;
     }
 
-    public function enableCache() {
+    public function enableCache()
+    {
         $this->cacheable = true;
     }
 
-    public function isCacheable() {
+    public function isCacheable()
+    {
         return $this->cacheable;
     }
 
-    public function setCacheTimeout($timeout = 60) {
+    public function setCacheTimeout($timeout = 60)
+    {
         $timeout = intval($timeout);
         if ($timeout > 0) {
             $this->cache_timeout = $timeout;
@@ -61,19 +69,23 @@ abstract class Model {
         }
     }
 
-    public function fetchedFromCache() {
+    public function fetchedFromCache()
+    {
         return $this->fetchedfromcache;
     }
 
-    public function disableFetch() {
+    public function disableFetch()
+    {
         $this->dontfetch = true;
     }
 
-    public function enableFetch() {
+    public function enableFetch()
+    {
         $this->dontfetch = false;
     }
 
-    public function __set($name, $value) {
+    public function __set($name, $value)
+    {
 
 
         if (!$this->fetched) {
@@ -83,21 +95,24 @@ abstract class Model {
         }
 
 
-        if (is_int($value))
+        if (is_int($value)) {
             $value = intval($value);
-        if (is_float($value))
+        }
+        if (is_float($value)) {
             $value = floatval($value);
+        }
 
         if ($this->isValidDateTime($value)) {
             $value = new \TinyORM\DateTime($this->data[$name], new \DateTimeZone('Europe/Istanbul'));
         }
 
-        $this->data[$name] = $value;
+        $this->data[$name]     = $value;
         $this->changed_items[] = $name;
         Cache::delete($this->getFieldKey($name));
     }
 
-    private function isValidDateTime($dateTime) {
+    private function isValidDateTime($dateTime)
+    {
         if (!is_string($dateTime)) {
             return false;
         }
@@ -116,17 +131,19 @@ abstract class Model {
         return false;
     }
 
-    private function getFieldKey($name) {
-        return md5('ci' . get_called_class() . $name . $this->data[$this->primary_key]);
+    private function getFieldKey($name)
+    {
+        return md5('ci' . get_called_class() . $name . (isset($this->data[$this->primary_key]) ? $this->data[$this->primary_key] : ''));
     }
 
-    public function __get($name) {
+    public function __get($name)
+    {
 
         $isCacheable = in_array($name, $this->cachable_fields) && $this->primary_key && $this->data[$this->primary_key] && self::$globalCache;
 
         if ($isCacheable) {
             //maybe it's in cache
-            $key = $this->getFieldKey($name);
+            $key       = $this->getFieldKey($name);
             $fromcache = Cache::get($key);
             if ($fromcache) {
                 return $fromcache;
@@ -139,12 +156,13 @@ abstract class Model {
         }
 
 
-
         if (isset($this->data[$name]) && is_numeric($this->data[$name])) {
-            if ((int) $this->data[$name] == $this->data[$name]) {
+            if ((int)$this->data[$name] == $this->data[$name]) {
                 $this->data[$name] = intval($this->data[$name]);
-            } else if (strpos($this->data[$name], '.') !== false) {
-                $this->data[$name] = floatval($this->data[$name]);
+            } else {
+                if (strpos($this->data[$name], '.') !== false) {
+                    $this->data[$name] = floatval($this->data[$name]);
+                }
             }
         }
 
@@ -164,7 +182,8 @@ abstract class Model {
         return null;
     }
 
-    public static function find($criteria) {
+    public static function find($criteria)
+    {
 
         $class_name = get_called_class();
 
@@ -175,22 +194,21 @@ abstract class Model {
         if (is_array($criteria)) {
             $params = array();
             foreach ($criteria as $field => $value) {
-                $query.=" AND `" . $field . "`=?";
+                $query .= " AND `" . $field . "`=?";
                 $params[] = $value;
                 if (!$value) {
                     return null;
                 }
             }
         } else {
-            $query.=" AND `" . $object->primary_key . "`=?";
+            $query .= " AND `" . $object->primary_key . "`=?";
             $params = array($criteria);
             if (!$criteria) {
                 return null;
             }
         }
 
-        $query.=" limit 1";
-
+        $query .= " limit 1";
 
 
         if ($object->isCacheable() && self::$globalCache) {
@@ -201,7 +219,7 @@ abstract class Model {
             }
 
             $cachekey = $object->getCacheKey($cache_criterias);
-            $fetched = Cache::get($cachekey);
+            $fetched  = Cache::get($cachekey);
         }
 
         if (!isset($fetched) || (isset($fetched) && $fetched === false)) {
@@ -215,7 +233,7 @@ abstract class Model {
             Cache::set($cachekey, $fetched, $object->cache_timeout);
         }
 
-        $object->data = $fetched;
+        $object->data    = $fetched;
         $object->fetched = true;
 
         if ($fetched) {
@@ -225,16 +243,19 @@ abstract class Model {
         }
     }
 
-    private function getCacheKey($criteria) {
+    private function getCacheKey($criteria)
+    {
         return md5('objectcache_' . md5(get_called_class() . serialize($criteria)));
     }
 
-    public function reloadData() {
+    public function reloadData()
+    {
         $this->loaddata(true);
     }
 
-    private function loaddata($force = false) {
-        if (!$this->data[$this->primary_key] || $this->dontfetch) {
+    private function loaddata($force = false)
+    {
+        if (!isset($this->data[$this->primary_key]) || $this->dontfetch) {
             return false;
         }
 
@@ -246,8 +267,8 @@ abstract class Model {
             $cached = Cache::get($cachekey);
 
             if ($cached !== false) {
-                $this->data = $cached;
-                $this->fetched = true;
+                $this->data             = $cached;
+                $this->fetched          = true;
                 $this->fetchedfromcache = true;
 
                 return true;
@@ -255,16 +276,15 @@ abstract class Model {
         }
 
         $query = "SELECT * FROM " . $this->table . " WHERE 1 AND ";
-        $query.=" `" . $this->primary_key . "`=?";
+        $query .= " `" . $this->primary_key . "`=?";
         $params = array($this->data[$this->primary_key]);
-        $query.=" limit 1";
+        $query .= " limit 1";
 
 
         $fetched_data = Database::query($query)->execute($params)->fetchOne();
         if ($fetched_data) {
-            $this->data = $fetched_data;
+            $this->data    = $fetched_data;
             $this->fetched = true;
-
 
 
             Cache::set($cachekey, $this->data, $this->cache_timeout);
@@ -275,7 +295,8 @@ abstract class Model {
         }
     }
 
-    public function save() {
+    public function save()
+    {
 
         if ($this->fetched) { //We know that this record exists in the table
             if (!$this->data[$this->primary_key]) {
@@ -291,7 +312,8 @@ abstract class Model {
         }
     }
 
-    private function insert() {
+    private function insert()
+    {
         $params = array();
         $fields = array();
         foreach ($this->data as $field => $value) {
@@ -314,28 +336,28 @@ abstract class Model {
 
         $query = "INSERT INTO " . $this->table . " ( ";
         for ($i = 0; $i < count($params); $i++) {
-            $query.=$params[$i]['column'];
+            $query .= $params[$i]['column'];
             if ($i < count($params) - 1) {
-                $query.=",";
+                $query .= ",";
             }
         }
-        $query.=") VALUES (";
+        $query .= ") VALUES (";
 
         $realparams = array();
 
         for ($i = 0; $i < count($params); $i++) {
-            if ($params[$i]['func']) {
-                $query.=$params[$i]['func'];
+            if (isset($params[$i]['func'])) {
+                $query .= $params[$i]['func'];
             } else {
                 $realparams[] = $params[$i]['value'];
-                $query.="?";
+                $query .= "?";
             }
             if ($i < count($params) - 1) {
-                $query.=",";
+                $query .= ",";
             }
         }
 
-        $query.=")";
+        $query .= ")";
 
         try {
             Database::query($query)->execute($realparams);
@@ -350,7 +372,8 @@ abstract class Model {
         }
     }
 
-    private function update() {
+    private function update()
+    {
 
         $params = array();
         $fields = array();
@@ -375,10 +398,10 @@ abstract class Model {
         }
 
         $params[] = $this->data[$this->primary_key];
-        $query = "UPDATE " . $this->table . " SET ";
-        $query.=implode(',', $fields);
-        $query.=" WHERE " . $this->primary_key . " = ?";
-        $query.=" LIMIT 1";
+        $query    = "UPDATE " . $this->table . " SET ";
+        $query .= implode(',', $fields);
+        $query .= " WHERE " . $this->primary_key . " = ?";
+        $query .= " LIMIT 1";
 
         try {
             Database::query($query)->execute($params);
@@ -391,7 +414,8 @@ abstract class Model {
         return true;
     }
 
-    public function delete($criteria = null) {
+    public function delete($criteria = null)
+    {
 
         if (!$this->data[$this->primary_key] && !is_array($criteria)) {
             throw new Exception(get_called_class() . " instance does not have a value for its primary key field " . $this->primary_key);
@@ -401,15 +425,14 @@ abstract class Model {
         if (is_array($criteria)) {
             $params = array();
             foreach ($criteria as $field => $value) {
-                $query.=" `" . $field . "`=?";
+                $query .= " `" . $field . "`=?";
                 $params[] = $value;
             }
         } else {
-            $query.=" `" . $this->primary_key . "`=?";
+            $query .= " `" . $this->primary_key . "`=?";
             $params = array($this->data[$this->primary_key]);
-            $query.=" limit 1";
+            $query .= " limit 1";
         }
-
 
 
         try {
@@ -421,7 +444,8 @@ abstract class Model {
         }
     }
 
-    public function inValidateCache() {
+    public function inValidateCache()
+    {
         if ($this->isCacheable()) {
             Cache::delete($this->getCacheKey($this->data[$this->primary_key]));
             return true;
