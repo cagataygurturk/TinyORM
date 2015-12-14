@@ -5,7 +5,7 @@ require_once realpath(__DIR__ . '/../vendor/autoload.php');
 $config=array(
     'dbhost' => "127.0.0.1",
     'dbuser' => "root",
-    'dbpass' => "labtec1147",
+    'dbpass' => "",
     'database' => "circle_test",
     'memcache' => array(
         array('host' => '127.0.0.1')
