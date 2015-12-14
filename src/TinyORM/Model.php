@@ -182,6 +182,11 @@ abstract class Model
         return null;
     }
 
+    /**
+     * @param $criteria
+     *
+     * @return static
+     */
     public static function find($criteria)
     {
 
