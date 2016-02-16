@@ -68,7 +68,7 @@ class Cache
     private static function cache_key($key)
     {
         global $_ENV;
-        return 't' . (isset($_ENV['HPHP']) ? 'hp' : '') . $key;
+        return 'i' . (isset($_ENV['HPHP']) ? 'h' : '') . $key;
     }
 
     public static function get($key)
