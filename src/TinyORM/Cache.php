@@ -26,9 +26,9 @@ class Cache
         self::$config = $config;
     }
 
-
     private static function localGet($key)
     {
+        $key = self::cache_key($key);
         if (isset(self::$localCache[$key])) {
             return self::$localCache[$key];
         }
@@ -38,7 +38,7 @@ class Cache
 
     private static function localSet($key, $value)
     {
-        self::$localCache[$key] = $value;
+        self::$localCache[self::cache_key($key)] = $value;
         return true;
     }
 
@@ -73,8 +73,6 @@ class Cache
 
     public static function get($key)
     {
-
-        $val = null;
         try {
             $val = self::localGet($key);
         } catch (\Exception $e) {
