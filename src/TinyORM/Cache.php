@@ -16,6 +16,7 @@ class Cache
 
     private static $instance;
     private static $config;
+    private static $localCache = array();
 
     const VAL_FALSE = '-F-';
     const VAL_NULL = '-N-';
@@ -23,6 +24,22 @@ class Cache
     public static function setConfig($config)
     {
         self::$config = $config;
+    }
+
+
+    private static function localGet($key)
+    {
+        if (isset(self::$localCache[$key])) {
+            return self::$localCache[$key];
+        }
+
+        throw new \Exception();
+    }
+
+    private static function localSet($key, $value)
+    {
+        self::$localCache[$key] = $value;
+        return true;
     }
 
     private static function inst()
@@ -57,7 +74,12 @@ class Cache
     public static function get($key)
     {
 
-        $val = self::inst()->get(self::cache_key($key));
+        $val = null;
+        try {
+            $val = self::localGet($key);
+        } catch (\Exception $e) {
+            $val = self::inst()->get(self::cache_key($key));
+        }
 
         if ($val === static::VAL_NULL) {
             return null;
@@ -80,6 +102,7 @@ class Cache
             $object = static::VAL_FALSE;
         }
 
+        self::localSet($key, $object);
         return self::inst()->set(self::cache_key($key), $object, $timeout);
     }
 
