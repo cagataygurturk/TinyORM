@@ -79,6 +79,9 @@ class Cache
             $val = self::inst()->get(self::cache_key($key));
         }
 
+
+        self::localSet($key, $val);
+
         if ($val === static::VAL_NULL) {
             return null;
         }
