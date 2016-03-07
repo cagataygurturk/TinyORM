@@ -88,10 +88,8 @@ abstract class Model
     {
 
 
-        if (!$this->fetched) {
-            if ($this->data[$this->primary_key]) {
-                $this->loaddata();
-            }
+        if (!$this->fetched && isset($this->data[$this->primary_key])) {
+            $this->loaddata();
         }
 
 
