@@ -1,7 +1,7 @@
 {
     "name": "cagataygurturk/tinyorm",
     "description": "TinyORM is a small DBAL and ORM library written in PHP.",
-    "require": {
+    "require-dev": {
         "phpunit/phpunit": "3.7.*",
         "phpunit/phpunit-selenium": ">=1.2",
         "phpunit/dbunit": ">=1.2"
