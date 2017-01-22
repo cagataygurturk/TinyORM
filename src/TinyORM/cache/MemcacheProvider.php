@@ -76,7 +76,6 @@ class MemcacheProvider extends AbstractCacheProvider
         if ($this->memcache->getResultCode() === Memcached::RES_SUCCESS) {
 
             if (!($found instanceof CachedObject)) {
-                $this->delete($key);
                 throw new NotFoundException();
             }
 
@@ -85,12 +84,13 @@ class MemcacheProvider extends AbstractCacheProvider
 
         if ($this->hasAuthority()) {
             $found = $this->getAuthorityCache()->get($key);
-            $this->memcache->set($key, $found, $found->getRemainingTTL());
-        } else {
-            throw new NotFoundException();
+            if ($found instanceof CachedObject) {
+                $this->memcache->set($key, $found, $found->getRemainingTTL());
+                return $found->getObject();
+            }
         }
+        throw new NotFoundException();
 
-        return $found->getObject();
     }
 
 }
