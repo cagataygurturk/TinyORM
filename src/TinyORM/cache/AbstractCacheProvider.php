@@ -17,7 +17,7 @@ abstract class AbstractCacheProvider
     /**
      * @return AbstractCacheProvider
      */
-    public function getAuthorityCache()
+    protected function getAuthorityCache()
     {
         return $this->authorityCache;
     }
@@ -27,13 +27,6 @@ abstract class AbstractCacheProvider
         return $this->authorityCache !== null;
     }
 
-    protected function populateObjectWithMetadata($object, $timeout)
-    {
-        return array(
-            'e' => time() + $timeout,
-            'o' => $object
-        );
-    }
 
     abstract function delete($key);
 

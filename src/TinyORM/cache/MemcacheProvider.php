@@ -55,8 +55,15 @@ class MemcacheProvider extends AbstractCacheProvider
             $this->getAuthorityCache()->set($key, $cachedObject, $timeout);
         }
 
-        $this->memcache->set($key,
+        $this->writeToStore($key,
             $cachedObject,
+            $timeout);
+    }
+
+    private function writeToStore($key, $object, $timeout = 10)
+    {
+        $this->memcache->set($key,
+            $object,
             ($timeout == null ? 0 : $timeout));
     }
 
@@ -85,10 +92,13 @@ class MemcacheProvider extends AbstractCacheProvider
         if ($this->hasAuthority()) {
             $found = $this->getAuthorityCache()->get($key);
             if ($found instanceof CachedObject) {
-                $this->memcache->set($key, $found, $found->getRemainingTTL());
+                $this->writeToStore($key,
+                    $found,
+                    $found->getRemainingTTL());
                 return $found->getObject();
             }
         }
+
         throw new NotFoundException();
 
     }
