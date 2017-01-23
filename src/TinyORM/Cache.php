@@ -54,7 +54,7 @@ class Cache
     public static function get($key)
     {
         try {
-            return self::$cacheAuthority->getAuthorityCache()->get($key);
+            return self::$cacheAuthority->get($key);
         } catch (NotFoundException $notFoundException) {
             return false;
         }
